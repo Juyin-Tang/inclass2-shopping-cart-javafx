@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15" alignment="TOP_CENTER" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.example.shoppingcart.Controller">
+    <Label text="Shopping Cart App" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+    <HBox spacing="10" alignment="CENTER">
+        <Label fx:id="lblLanguage" text="Select language:"/>
+        <ChoiceBox fx:id="languageChoiceBox"/>
+    </HBox>
+    <HBox spacing="10" alignment="CENTER">
+        <Label fx:id="lblItemCount" text="Enter number of items:"/>
+        <TextField fx:id="txtItemCount"/>
+        <Button fx:id="btnConfirmCount" text="Confirm" onAction="#onConfirmCount"/>
+    </HBox>
+    <VBox fx:id="itemsContainer" spacing="5"/>
+    <Button fx:id="btnCalculate" text="Calculate Total" onAction="#calculateTotal" disable="true"/>
+    <Label fx:id="lblResult" text="Total: " wrapText="true"/>
+</VBox>
