@@ -5,7 +5,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-import java.text.MessageFormat;
 import java.util.*;
 
 public class Controller {
@@ -18,45 +17,44 @@ public class Controller {
     @FXML private Button btnCalculate;
     @FXML private Label lblResult;
 
-    private ResourceBundle bundle;
-    private Locale currentLocale;
-    private List<HBox> itemRows = new ArrayList<>();
+    private LocalizationService localizationService = new LocalizationService();
+    private Map<String, String> languageMap = new HashMap<>();
+
     private List<TextField> priceFields = new ArrayList<>();
     private List<TextField> quantityFields = new ArrayList<>();
 
-    private final Map<String, Locale> languageMap = new HashMap<>();
-
     public void initialize() {
-        languageMap.put("English", new Locale("en", "US"));
-        languageMap.put("Finnish", new Locale("fi", "FI"));
-        languageMap.put("Swedish", new Locale("sv", "SE"));
-        languageMap.put("Japanese", new Locale("ja", "JP"));
-        languageMap.put("Arabic", new Locale("ar", "AR"));
+        languageMap.put("English", "en");
+        languageMap.put("Finnish", "fi");
+        languageMap.put("Swedish", "sv");
+        languageMap.put("Japanese", "ja");
+        languageMap.put("Arabic", "ar");
 
         languageChoiceBox.getItems().addAll("English", "Finnish", "Swedish", "Japanese", "Arabic");
         languageChoiceBox.setValue("English");
-        setLanguage("en", "US");
+        loadLanguage("en");
 
         languageChoiceBox.setOnAction(e -> {
             String selected = languageChoiceBox.getValue();
-            Locale loc = languageMap.get(selected);
-            if (loc != null) {
-                setLanguage(loc.getLanguage(), loc.getCountry());
-            }
+            String langCode = languageMap.get(selected);
+            loadLanguage(langCode);
         });
+
+        btnConfirmCount.setOnAction(e -> onConfirmCount());
+        btnCalculate.setOnAction(e -> calculateTotal());
     }
 
-    private void setLanguage(String lang, String country) {
-        currentLocale = new Locale(lang, country);
-        bundle = ResourceBundle.getBundle("messages/MessagesBundle", currentLocale);
+    private void loadLanguage(String langCode) {
+        localizationService.loadLanguage(langCode);
         updateStaticTexts();
     }
 
     private void updateStaticTexts() {
-        lblLanguage.setText(bundle.getString("language.label"));
-        lblItemCount.setText(bundle.getString("item.count.prompt"));
-        btnConfirmCount.setText(bundle.getString("confirm.button"));
-        btnCalculate.setText(bundle.getString("calculate.button"));
+        lblLanguage.setText(localizationService.getMessage("language.label"));
+        lblItemCount.setText(localizationService.getMessage("item.count.prompt"));
+        btnConfirmCount.setText(localizationService.getMessage("confirm.button"));
+        btnCalculate.setText(localizationService.getMessage("calculate.button"));
+        lblResult.setText(localizationService.getMessage("result.ready"));
     }
 
     @FXML
@@ -66,9 +64,9 @@ public class Controller {
             if (count <= 0) throw new NumberFormatException();
             createItemInputs(count);
             btnCalculate.setDisable(false);
-            lblResult.setText(bundle.getString("result.ready")); // 可添加属性
+            lblResult.setText(localizationService.getMessage("result.ready"));
         } catch (NumberFormatException e) {
-            lblResult.setText(bundle.getString("invalid.number"));
+            lblResult.setText(localizationService.getMessage("invalid.number"));
         }
     }
 
@@ -79,11 +77,11 @@ public class Controller {
 
         for (int i = 1; i <= count; i++) {
             HBox row = new HBox(10);
-            Label label = new Label(MessageFormat.format(bundle.getString("item.prefix"), i));
+            Label label = new Label(localizationService.getMessage("item.prefix", i));
             TextField priceField = new TextField();
-            priceField.setPromptText(bundle.getString("price.prompt"));
+            priceField.setPromptText(localizationService.getMessage("price.prompt"));
             TextField quantityField = new TextField();
-            quantityField.setPromptText(bundle.getString("quantity.prompt"));
+            quantityField.setPromptText(localizationService.getMessage("quantity.prompt"));
 
             priceFields.add(priceField);
             quantityFields.add(quantityField);
@@ -95,6 +93,7 @@ public class Controller {
 
     @FXML
     public void calculateTotal() {
+        List<CartItem> cartItems = new ArrayList<>();
         double total = 0.0;
         StringBuilder resultBuilder = new StringBuilder();
 
@@ -104,14 +103,19 @@ public class Controller {
                 int qty = Integer.parseInt(quantityFields.get(i).getText());
                 double itemTotal = price * qty;
                 total += itemTotal;
-                resultBuilder.append(MessageFormat.format(bundle.getString("item.total"), i + 1, itemTotal))
+                cartItems.add(new CartItem(i + 1, price, qty, itemTotal));
+                resultBuilder.append(localizationService.getMessage("item.total", i + 1, itemTotal))
                         .append("\n");
             } catch (NumberFormatException e) {
-                resultBuilder.append(MessageFormat.format(bundle.getString("item.error"), i + 1))
+                resultBuilder.append(localizationService.getMessage("item.error", i + 1))
                         .append("\n");
             }
         }
-        resultBuilder.append(MessageFormat.format(bundle.getString("cart.total"), total));
+        resultBuilder.append(localizationService.getMessage("cart.total", total));
         lblResult.setText(resultBuilder.toString());
+
+        String currentLang = languageMap.get(languageChoiceBox.getValue());
+        CartService cartService = new CartService();
+        cartService.saveCart(priceFields.size(), total, currentLang, cartItems);
     }
 }
