@@ -1,4 +1,4 @@
-package com.example.shoppingcart;
+/*package com.example.shoppingcart;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -20,5 +20,12 @@ public class MainApp extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+}*/
+package com.example.shoppingcart;
+
+public class MainApp {
+    public static void main(String[] args) {
+        System.out.println("Juyin Tang - Shopping Cart");
     }
 }
