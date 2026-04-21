@@ -14,6 +14,7 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javafx.version>17.0.6</javafx.version>
+        <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
     <dependencies>
@@ -83,6 +84,7 @@
                 </configuration>
             </plugin>
 
+            <!-- JaCoCo 覆盖率插件 -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -100,6 +102,10 @@
                             <goal>report</goal>
                         </goals>
                         <configuration>
+                            <formats>
+                                <format>XML</format>
+                                <format>HTML</format>
+                            </formats>
                             <excludes>
                                 <exclude>com/example/shoppingcart/Controller.class</exclude>
                                 <exclude>com/example/shoppingcart/MainApp.class</exclude>
