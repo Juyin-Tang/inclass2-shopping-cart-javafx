@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre
+FROM bellsoft/liberica-runtime-container:jre-21-slim-musl
+COPY target/shopping-cart.jar /app/app.jar
 WORKDIR /app
-COPY target/shopping-cart.jar /app/shopping-cart.jar
-ENTRYPOINT ["java", "-jar", "shopping-cart.jar"]
+CMD ["java", "-jar", "app.jar"]
